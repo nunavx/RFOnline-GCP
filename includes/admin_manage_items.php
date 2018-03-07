@@ -6,7 +6,7 @@ if( !empty($setmodules) )
 }
 else
 {
-    $lefttitle = "Item Shop Admin - Manage Items";
+	$lefttitle = "Item Shop Admin - Manage Items";
     $time = date("F j Y G:i");
     if( $this_script == $script_name ) 
     {
@@ -149,8 +149,9 @@ else
                     $url = str_replace("&page_gen=" . $page_gen, "", $_SERVER["REQUEST_URI"]);
                     $pager = new PS_Pagination($gamecp_dbconnect, $query_p1, $query_p2, 20, 10, $url);
                     $rs = $pager->paginate();
-                    $nav = get_nav($cat_id, $nav = "");
-                    $out .= "<table class=\"tborder\" cellpadding=\"3\" cellspacing=\"1\" border=\"0\" width=\"100%\" align=\"center\">" . "\n";
+					
+                    $nav = game_cp_5($cat_id, $nav = "");
+					$out .= "<table class=\"tborder\" cellpadding=\"3\" cellspacing=\"1\" border=\"0\" width=\"100%\" align=\"center\">" . "\n";
                     $out .= "\t<tr>" . "\n";
                     $out .= "\t\t<td class=\"thead\" colspan=\"2\" style=\"font-size: 12px;\"><a href=\"" . $script_name . "?do=" . $_GET["do"] . "\" style=\"text-decoration: none;\">Categories</a>" . $nav . "</td>" . "\n";
                     $out .= "\t</tr>" . "\n";
@@ -217,6 +218,7 @@ else
                     $out .= "\t\t\t\t\t\t<td valign=\"top\" class=\"thead\" style=\"text-align: center;\" colspan=\"2\" nowrap>Options</td>" . "\n";
                     $out .= "\t\t\t\t\t</tr>" . "\n";
                     connectitemsdb();
+					
                     while( $item = mssql_fetch_array($rs) ) 
                     {
                         $u_value = $item["item_upgrade"];
@@ -1162,7 +1164,8 @@ function game_cp_5($catid, $nav = array(  ))
         if( $cat = mssql_fetch_array($cat_result) ) 
         {
             $nav[] = " / <a href=\"" . $script_name . "?do=" . $_GET["do"] . "&cat_id=" . $catid . "\" style=\"text-decoration: none;\">" . $cat["cat_name"] . "</a>";
-            return get_nav($cat["cat_sub_id"], $nav);
+            //return get_nav($cat["cat_sub_id"], $nav);
+            return game_cp_5($cat["cat_sub_id"], $nav);
         }
 
         return "";

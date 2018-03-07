@@ -239,6 +239,7 @@ $userdata["createtime"] = "";
 $userdata["lastconnectip"] = "";
 $userdata["points"] = 0;
 $userdata["vote_points"] = 0;
+
 if( !isset($config["security_salt"]) || empty($config["security_salt"]) ) 
 {
     game_cp_22("Cannot run the script without the security_salt set to a value!");
@@ -422,6 +423,7 @@ else
 $securitytoken_raw = sha1($userdata["serial"] . sha1($config["security_salt"]) . sha1($config["security_salt"]));
 $securitytoken = time() . "-" . sha1(time() . $securitytoken_raw);
 $_license_properties = ioncube_file_properties();
+
 if( is_array($_license_properties) && isset($_license_properties["gamecp"]) ) 
 {
     $_license_properties = $_license_properties["gamecp"];

@@ -1,10 +1,12 @@
 <?php 
 define("THIS_SCRIPT", "gamecp");
 define("IN_GAMECP_SALT58585", true);
-include("./gamecp_common.php");
+include 'gamecp_common.php';
+
 $navbits = array( $config["gamecp_filename"] => $config["gamecp_programname"] );
 $do = isset($_REQUEST["do"]) ? antiject($_REQUEST["do"]) : "";
 $forum_username = "N/A";
+
 if( $do == "" && $notuser ) 
 {
     $lefttitle = $program_name;
@@ -36,6 +38,7 @@ if( $do == "" && $notuser )
     $out .= "<br>" . "\n";
     $out .= "Don't have a game account? Get one <a href=\"gamecp_register.php\">Here</a>.<br/>" . "\n";
     $out .= "Lost or forgot your password? Recover it <a href=\"" . $script_name . "?do=user_passwordrecover\">Here</a>." . "\n";
+	
 }
 else
 {
@@ -57,14 +60,17 @@ else
         $do = str_replace(".", "", $do);
         $do = str_replace("\\", "", $do);
         $do = str_replace("/", "", $do);
+		
         if( !file_exists("./includes/" . $do . ".php") ) 
         {
             $out .= $lang["page_not_found"];
             $lefttitle = "Page Not Found";
+			
         }
         else
         {
-            include("./includes/" . $do . ".php");
+		    include './includes/'.$do.'.php"';
+			
         }
 
         $title = $program_name . " - " . $lefttitle;
@@ -97,7 +103,6 @@ else
     }
 
 }
-
 gamecp_nav($isuser);
 eval("print_outputs(\"" . gamecp_template("gamecp") . "\");");
 

@@ -122,9 +122,10 @@ if( $exit_stage1 != true )
             $out .= "<center>Invalid Username or Password. Please try again.</center>";
             $exit_stage2 = true;
         }
-
+	
         if( $exit_stage2 != true ) 
         {
+
             $password_data = md5($username) . $ip . sha1(md5($query_password . $config["security_salt"]));
             $cookie_data = $username . chr(255) . $password_data;
             setcookie("gamecp_userdata", $cookie_data);

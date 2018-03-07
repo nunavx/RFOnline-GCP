@@ -65,7 +65,7 @@ else
                         $selected = "";
                     }
 
-                    $out .= "<option value=\"" . $i . "\"" . $selected . ">" . ucfirst(str_replace("tbl_code_", "", $table[$i]["table_name"])) . "</option>";
+                    $out .= "<option value=\"" . $i . "\"" . $selected . ">".$i."->" . ucfirst(str_replace("tbl_code_", "", $table[$i]["table_name"])) . "</option>";
                 }
                 mssql_free_result($tables_result);
                 $out .= "</select>";
@@ -137,14 +137,14 @@ else
 
                     }
 
-                    gamecp_log(0, $userdata["username"], "ADMIN - ITEM LIST - Searched for: " . game_cp_16($item_kind) . "" . " or " . $item_code . " or " . $item_name, 0);
+                    gamecp_log(0, $userdata["username"], "ADMIN - ITEM LIST - Searched for: " . game_cp_17($item_kind) . "" . " or " . $item_code . " or " . $item_name, 0);
                 }
                 else
                 {
                     $query_p2 .= " WHERE ";
                 }
-
-                $item_kind = game_cp_16($item_kind);
+				$item_kind = game_cp_17($item_kind);
+				
                 include("./includes/pagination/ps_pagination.php");
                 $query_p1 = "" . "SELECT item_id, item_code, item_name FROM " . $item_kind . $search_query;
                 $query_p2 .= "" . "item_id NOT IN ( SELECT TOP [OFFSET] item_id FROM " . $item_kind . " " . $search_query . " ORDER BY item_id) ORDER BY item_id ASC";
@@ -162,6 +162,7 @@ else
                 $out .= "<td class=\"thead\" style=\"padding: 4px;\" nowrap><b>Item Hex Code</b></td>";
                 $out .= "<td class=\"thead\" style=\"padding: 4px;\" nowrap><b>Item Name</b></td>";
                 $out .= "</tr>";
+				
                 while( $row = mssql_fetch_array($rs) ) 
                 {
                     $hex_code = strtoupper(dechex(hexdec("C0070001") + $row["item_id"]));
@@ -214,6 +215,7 @@ function game_cp_17($id)
         }
 
     }
+	
     mssql_free_result($tables_result);
     return $return;
 }

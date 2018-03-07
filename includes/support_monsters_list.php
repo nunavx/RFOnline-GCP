@@ -109,8 +109,8 @@ else
                 }
 
                 include("./includes/pagination/ps_pagination.php");
-                $query_p1 = "SELECT item_id, item_code, item_name FROM tbl_code_monstercharacter" . $search_query;
-                $query_p2 .= "" . "item_id NOT IN ( SELECT TOP [OFFSET] item_id FROM tbl_code_monstercharacter " . $search_query . " ORDER BY item_id) ORDER BY item_id ASC";
+                $query_p1 = "SELECT item_id, item_code, item_name FROM tbl_MonsterCharacter" . $search_query;
+                $query_p2 .= "" . "item_id NOT IN ( SELECT TOP [OFFSET] item_id FROM tbl_MonsterCharacter " . $search_query . " ORDER BY item_id) ORDER BY item_id ASC";
                 $url = str_replace("&page_gen=" . $page_gen, "", $_SERVER["REQUEST_URI"]);
                 $pager = new PS_Pagination($items_dbconnect, $query_p1, $query_p2, 50, 10, $url);
                 $rs = $pager->paginate();

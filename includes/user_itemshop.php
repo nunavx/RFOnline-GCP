@@ -1,17 +1,23 @@
 <?php 
+
+
 if( !empty($setmodules) ) 
 {
+
     $file = basename(__FILE__);
     $module["Donations"]["Item Shop"] = $file;
 }
 else
 {
+
+
     $lefttitle = "Item Shop";
     $time = date("F j Y G:i");
     if( $this_script == $script_name ) 
     {
         if( $isuser == true ) 
         {
+		
             $config["shop_discount"] = 0;
             $page = isset($_REQUEST["page"]) ? antiject($_REQUEST["page"]) : "";
             $cat_id = isset($_GET["cat_id"]) ? (int) $_GET["cat_id"] : 0;
@@ -28,6 +34,7 @@ else
             $is_char = false;
             if( isset($_POST["order"]) && isset($_POST["sort"]) ) 
             {
+			
                 $sortorder_data = $_POST["order"] . chr(255) . $_POST["sort"];
                 setcookie("sortorder", $sortorder_data, time() + 31104000);
                 $order = antiject($_POST["order"]);
@@ -35,6 +42,7 @@ else
             }
             else
             {
+			
                 if( isset($_COOKIE["sortorder"]) ) 
                 {
                     $sortorder = explode(chr(255), $_COOKIE["sortorder"]);
@@ -57,12 +65,14 @@ else
             }
             else
             {
+			
                 if( $order == 2 ) 
                 {
                     $order = "item_price";
                 }
                 else
                 {
+				
                     if( $order == 3 ) 
                     {
                         $order = "item_race";
@@ -107,7 +117,6 @@ else
                 }
 
             }
-
             if( $sort == 1 ) 
             {
                 $sort = "ASC";
@@ -116,6 +125,7 @@ else
             {
                 $sort = "DESC";
             }
+			
 
             $config["shop_order_by"] = isset($config["shop_order_by"]) ? $config["shop_order_by"] : "item_name";
             $order = $order == "" ? $config["shop_order_by"] : $order;
@@ -124,8 +134,10 @@ else
             connectuserdb();
             if( empty($page) ) 
             {
+			
                 $out .= "<p style=\"font-weight: bold; font-size: 15px; text-align: center;\">Your account currently has <span style=\"color: #8F92E8;\">" . number_format($userdata["points"], 2) . "</span> Game Points</p>" . "\n";
                 connectgamecpdb();
+				
                 $cat_sql = "SELECT cat_id, cat_sub_id, cat_name, cat_description FROM gamecp_shop_categories WHERE cat_sub_id = '" . $cat_id . "' ORDER BY cat_order, cat_name, cat_id DESC";
                 if( !($cat_result = mssql_query($cat_sql)) ) 
                 {
@@ -156,17 +168,19 @@ else
                     }
 
                     include("./includes/pagination/ps_pagination.php");
+					
                     $query_p1 = "" . "SELECT item_id,item_name,item_dbcode,item_image_url,item_amount,item_upgrade,item_description,item_price,item_buy_count,item_date_added,item_date_updated,item_race FROM gamecp_shop_items WHERE item_delete = 0 AND item_status = 1 " . $by_category;
                     $query_p2 = "" . " AND item_id NOT IN ( SELECT TOP [OFFSET] item_id FROM gamecp_shop_items WHERE item_delete = 0 AND item_status = 1 " . $by_category . " ORDER BY " . $order . " " . $sort . ") ORDER BY " . $order . " " . $sort;
                     $page_gen = isset($_REQUEST["page_gen"]) ? $_REQUEST["page_gen"] : "0";
                     $url = str_replace("&page_gen=" . $page_gen, "", $_SERVER["REQUEST_URI"]);
                     $pager = new PS_Pagination($gamecp_dbconnect, $query_p1, $query_p2, 20, 10, $url);
                     $rs = $pager->paginate();
-                    $nav = get_nav($cat_id, $nav = "");
+					$nav = game_cp_10($cat_id, $nav = "");
                     $out .= "<table class=\"tborder\" cellpadding=\"3\" cellspacing=\"1\" border=\"0\" width=\"100%\" align=\"center\">" . "\n";
                     $out .= "\t<tr>" . "\n";
                     $out .= "\t\t<td class=\"thead\" colspan=\"2\" style=\"font-size: 12px;\"><a href=\"" . $script_name . "?do=" . $_GET["do"] . "\" style=\"text-decoration: none;\">Categories</a>" . $nav . "</td>" . "\n";
                     $out .= "\t</tr>" . "\n";
+						
                     if( 0 < $total_categories ) 
                     {
                     }
@@ -239,6 +253,7 @@ else
                     }
                     $out .= "\t\t\t\t\t  </select> " . "\n";
                     $out .= "\t\t\t\t\t  <select name=\"sort\">" . "\n";
+				
                     for( $s = 1; $s < count($sort_array); $s++ ) 
                     {
                         if( $sort_raw == $s ) 
@@ -263,6 +278,7 @@ else
                     $out .= "\t\t<td class=\"thead\">Item List</td>" . "\n";
                     $out .= "\t</tr>" . "\n";
                     connectitemsdb();
+					
                     while( $item = mssql_fetch_array($rs) ) 
                     {
                         $u_value = $item["item_upgrade"];
@@ -572,6 +588,7 @@ else
                     $ceil_slots = ceil($item_slots);
                     $slots_code = $base_code + ($base_code + 1) * $ceil_slots;
                     $slots = $ceil_slots;
+					
                     if( 0 < $ceil_slots ) 
                     {
                         $u_value = dechex($u_value);
@@ -603,6 +620,7 @@ else
                     }
                     else
                     {
+					
                         if( $ceil_slots <= 0 && $item_custom_amount == 1 ) 
                         {
                             $item_raw_amount = $item_amount;
@@ -670,6 +688,7 @@ else
                     $out .= "\t</tr>" . "\n";
                     $out .= "</table>" . "\n";
                     $char_select = "<select name=\"char_serial\">" . "\n";
+					
                     foreach( $chars as $char ) 
                     {
                         if( $item_race == 1 && ($char["Race"] == 0 || $char["Race"] == 1) ) 
@@ -715,6 +734,7 @@ else
                         }
 
                     }
+					
                     $char_select .= "</select>" . "\n";
                     if( $is_char == false ) 
                     {
@@ -766,6 +786,7 @@ else
                     $t_logout = strtotime($userdata["lastlogofftime"]);
                     $t_cur = time();
                     $t_maxlogin = $t_login + 3600;
+					
                     if( $t_login <= $t_logout ) 
                     {
                         $status = "offline";
@@ -855,6 +876,7 @@ else
                             $bags .= "" . "I.K" . $i;
                         }
                         connectdatadb();
+						
                         $inven_select = "" . "SELECT " . $bags . " FROM\r\n\t\t\t\ttbl_inven AS I\r\n\t\t\t\t\tINNER JOIN\r\n\t\t\t\ttbl_base AS B\r\n\t\t\t\t\tON B.Serial = I.Serial\r\n\t\t\t\tWHERE\r\n\t\t\t\t\tI.Serial = '" . $char_serial . "'\r\n\t\t\t\tAND\r\n\t\t\t\t\tB.AccountSerial = '" . $userdata["serial"] . "'";
                         if( !($inven_result = mssql_query($inven_select)) ) 
                         {
@@ -872,6 +894,7 @@ else
                             }
 
                         }
+							
                         if( @mssql_num_rows($inven_result) <= 0 ) 
                         {
                             $out .= "<p style=\"text-align: center; font-weight: bold;\">No such character found</p>";
@@ -893,6 +916,7 @@ else
                         {
                             $item_amount = 0;
                         }
+
 
                         $update_inven = "" . "UPDATE tbl_inven SET K" . $empty_slot . " = '" . $item_dbcode . "', U" . $empty_slot . " = '" . $item_upgrade . "', D" . $empty_slot . " = '" . $item_amount . "' WHERE Serial = '" . $char_serial . "'";
                         if( !($inven_result = mssql_query($update_inven)) ) 
@@ -962,7 +986,6 @@ else
     {
         $out .= $lang["invalid_page_load"];
     }
-
 }
 
 function game_cp_10($catid, $nav = array(  ))
@@ -981,7 +1004,8 @@ function game_cp_10($catid, $nav = array(  ))
         {
             $nav[] = " / <a href=\"" . $script_name . "?do=" . $_GET["do"] . "&cat_id=" . $catid . "\" style=\"text-decoration: none;\">" . $cat["cat_name"] . "</a>";
             @mssql_free_result($cat_result);
-            return get_nav($cat["cat_sub_id"], $nav);
+          //  return get_nav($cat["cat_sub_id"], $nav);
+            return game_cp_10($cat["cat_sub_id"], $nav);
         }
 
         @mssql_free_result($cat_result);

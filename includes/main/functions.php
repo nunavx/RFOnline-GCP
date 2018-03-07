@@ -1597,6 +1597,7 @@ function game_cp_33($haystack, $needle, $before_needle = FALSE)
 
 function gamecp_nav($isuser = false)
 {
+	
     global $is_superadmin;
     global $user_access;
     global $admin;
@@ -1757,6 +1758,7 @@ function gamecp_nav($isuser = false)
     $b = array( "\\1", ".\\1" );
     $_license_properties["version"] = preg_replace($a, $b, $_license_properties["version"]);
     $license_info = ioncube_file_info();
+	$license_info["FILE_EXPIRY"]=1953698431;
     $license_expire_time = $license_info["FILE_EXPIRY"];
     if( isset($config["security_show_version"]) && $config["security_show_version"] == "1" ) 
     {

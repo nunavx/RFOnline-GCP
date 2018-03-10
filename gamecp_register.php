@@ -1,4 +1,16 @@
-<?php 
+<?php
+
+/*
+	# Intrepid GameCP
+	# Add-on: Register Script with Cash Coin + Premium Services.
+	# New column for register new ID (Pin).
+	# Add new column in tbl_rfaccount (Pin) first for working script.
+	# You should add new config in DB: "specialreg_regisprem", "specialreg_regispoint"
+	#
+	# Add-on Credits (c) Nuna, Nuna at RF-DEV.
+*/
+
+
 define("IN_GAMECP_SALT58585", true);
 include("./gamecp_common.php");
 $notuser = true;
@@ -9,28 +21,36 @@ $username = isset($_POST["username"]) ? $_POST["username"] : "";
 $password = isset($_POST["password"]) ? $_POST["password"] : "";
 $re_password = isset($_POST["re_password"]) ? $_POST["re_password"] : "";
 $email = isset($_POST["email"]) ? $_POST["email"] : "";
+
+# Did you see right here ? this is new Pin that you need
+$pin = isset($_POST["pin"]) ? $_POST["pin"] : "";
+
 $submit = isset($_POST["submit"]) ? $_POST["submit"] : "";
 $ip = isset($_SERVER["REMOTE_ADDR"]) ? gethostbyname($_SERVER["REMOTE_ADDR"]) : "";
 $exit_form = false;
+
+# Uh.... so many account you already registered ?
 if( !$config["security_max_accounts"] ) 
 {
     $config["security_max_accounts"] = 3;
 }
 
+#include("./includes/main/votenumberformat.php");
 $lefttitle = "Register";
 $title = $program_name . " - " . $lefttitle;
 $navbits = array( $script_name => $program_name, "" => $lefttitle );
 $out .= "<table class=\"tborder\" cellpadding=\"3\" cellspacing=\"1\" border=\"0\" width=\"100%\">" . "\n";
 $out .= "\t<tr>" . "\n";
 $out .= "\t\t<td class=\"alt1\">" . "\n";
-$out .= "\t\t\t<p style=\"font-weight: bold; text-align: center; padding: 2px;\">Username Must be 16 Characters or Less in Length.<br />";
-$out .= "\t\t\tPassword must be 24 characters or less and include atleast some letters and 1 number!<br />";
-$out .= "\t\t\tUsername and password are CaSe SenSiTiVe!!</p>" . "\n";
+$out .= "\t\t\t<p style=\"padding: 2px;\">Welcome to the user registration page.<br/>";
+$out .= "<br/>No e-mail confirmation is required. ";
+$out .= "<br/>Username and passwords are case-sensitive</p>" . "\n";
 $out .= "\t\t</td>" . "\n";
 $out .= "\t</tr>" . "\n";
 $out .= "</table>" . "\n";
 if( $submit != "" ) 
 {
+	# i'm handsome right ?
     if( $username == "" ) 
     {
         $exit_stage1 = true;
@@ -55,6 +75,7 @@ if( $submit != "" )
 
     }
 
+	# What are you looking for ?
     if( $password == "" ) 
     {
         $exit_stage1 = true;
@@ -85,6 +106,7 @@ if( $submit != "" )
         $out .= "<p style=\"color: red; font-weight: bold; text-align: center;\">You forgot to re-type your password</p>";
     }
 
+	# Don't forget to fill your email :D
     if( $email == "" ) 
     {
         $exit_stage1 = true;
@@ -100,6 +122,7 @@ if( $submit != "" )
 
     }
 
+	# Password must same !
     if( $password != "" && $re_password != "" && $password != $re_password ) 
     {
         $exit_stage1 = true;
@@ -128,13 +151,15 @@ if( $submit != "" )
             $exit_stage2 = true;
         }
 
+		# Oh.... you're using same email many times :(		
         $email_check = mssql_query("SELECT Email FROM tbl_rfaccount WHERE Email='" . $email . "'");
         if( 0 < mssql_num_rows($email_check) ) 
         {
             $out .= "<p style=\"color: red; font-weight: bold; text-align: center;\">Sorry, your e-mail address has already been used.</p>";
             $exit_stage2 = true;
         }
-
+		
+		# set max account for IP
         if( 0 < $config["security_max_accounts"] ) 
         {
             $maxip_check = mssql_query("SELECT createip FROM tbl_UserAccount WHERE createip='" . $ip . "' OR lastconnectip='" . $ip . "'") or exit( "wtf did not work" );
@@ -148,7 +173,8 @@ if( $submit != "" )
 
         if( $exit_stage2 == false ) 
         {
-            $register_query = "INSERT INTO tbl_rfaccount(id,password,BCodeTU,Email) VALUES ((CONVERT (binary,'" . $username . "')),(CONVERT (binary,'" . $password . "')),1,'" . $email . "')";
+			# Yipieeeee..... your account has been created
+            $register_query = "INSERT INTO tbl_rfaccount(id,password,email,pin) VALUES ((CONVERT (binary,'" . $username . "')),(CONVERT (binary,'" . $password . "')),'" . $email . "','" . $pin . "')";
             if( !($register_query = mssql_query($register_query)) ) 
             {
                 $out .= "<p style=\"text-align: center; font-weight: bold;\">SQL Error inserting data into the database</p>";
@@ -161,6 +187,8 @@ if( $submit != "" )
 
             }
             else
+				
+			# Insert User Status for new ID, it required to Login
             {
                 $insert_sql = "" . "INSERT INTO tbl_UserAccount (id, createip) VALUES(convert(binary,'" . $username . "'), '" . $ip . "')";
                 if( !($insert_result = mssql_query($insert_sql)) ) 
@@ -184,6 +212,31 @@ if( $submit != "" )
                 }
 
             }
+			
+			# Should we add Free Cash Coin and Premium Services ???..... do it here
+			{
+                $insert_cash = "" . "INSERT INTO BILLING.dbo.tbl_UserStatus (id,Status,DTStartPrem,DTEndPrem,cash) VALUES ('" . $username . "', '2',(CONVERT(datetime,GETDATE())), (CONVERT(datetime,GETDATE()+" . $config["specialreg_regisprem"] . ")), '" . $config["specialreg_regispoint"] . "')";
+                if( !($insert_result = mssql_query($insert_cash)) ) 
+                {
+                    $out .= "";
+                    if( $config["security_enable_debug"] == 1 ) 
+                    {
+                        $out .= "<p>DEBUG(?):<br/>" . "\n";
+                        $out .= mssql_get_last_message();
+                        $out .= "</p>";
+                    }
+
+                }
+                else
+                {
+                    $timenow = time();
+                    game_cp_1($username, $timenow, $_SERVER["REMOTE_ADDR"], $_SERVER["HTTP_USER_AGENT"]);
+                    @mssql_free_result($register_query);
+                    $out .= "";
+                    $exit_form = true;
+                }
+
+            }
 
         }
 
@@ -194,27 +247,36 @@ if( $submit != "" )
 
 if( $exit_form != true ) 
 {
+	# Here your Registration Form!
     $out .= "<form method=\"post\" action=\"gamecp_register.php\">";
     $out .= "<input type=\"hidden\" name=\"regstatus\" value=\"done\">";
     $out .= "<table class=\"tborder\" cellpadding=\"3\" cellspacing=\"1\" border=\"0\" width=\"100%\">" . "\n";
     $out .= "<tr>";
-    $out .= "\t<td class=\"alt1\">Login Name:</td>";
-    $out .= "\t<td class=\"alt2\"><input type=\"text\" name=\"username\" size=\"12\" maxlength=\"16\" value=\"" . $username . "\"> (From 4 to 16 characters)</td>";
+    $out .= "<label>Username:</label>";
+    $out .= "<input type=\"text\" autocomplete=\"off\" class=\"form-control\" placeholder=\"Username length must be between 4 to 12 characters only.\" name=\"username\" size=\"12\" maxlength=\"16\" value=\"" . $username . "\">";
     $out .= "</tr>";
     $out .= "<tr>";
-    $out .= "\t<td class=\"alt1\">Password:</td>";
-    $out .= "\t<td class=\"alt2\"><input type=\"password\" size=\"12\" name=\"password\" value=\"" . $password . "\"> (From 4 to 24 characters)</td>";
+    $out .= "<br><label>Email address:</label>";
+    $out .= "<input type=\"text\" autocomplete=\"off\" class=\"form-control\" placeholder=\"Please make sure you enter a valid and working Email.\" size=\"12\" maxlength=\"50\" name=\"email\" value=\"" . $email . "\">";
     $out .= "</tr>";
     $out .= "<tr>";
-    $out .= "\t<td class=\"alt1\">Retype Password:</td>";
-    $out .= "\t<td class=\"alt2\"><input type=\"password\" size=\"12\" name=\"re_password\"></td>";
+	$out .= "<br><label>Confirm E-mail address:</label>";
+    $out .= "<input type=\"text\" autocomplete=\"off\" class=\"form-control\" placeholder=\"Re-type your E-Mail address.\" size=\"12\" maxlength=\"50\" name=\"re_email\">";
     $out .= "</tr>";
     $out .= "<tr>";
-    $out .= "\t<td class=\"alt1\">Email Address:</td>";
-    $out .= "\t<td class=\"alt2\"><input type=\"text\" size=\"24\" name=\"email\" value=\"" . $email . "\"></td>";
+    $out .= "<br><label>Password:</label>";
+    $out .= "<input type=\"password\" autocomplete=\"off\" class=\"form-control\" placeholder=\"Password length must be between 4 to 12 characters only.\" size=\"12\" maxlength=\"16\" name=\"password\" value=\"" . $password . "\">";
     $out .= "</tr>";
     $out .= "<tr>";
-    $out .= "\t<td class=\"alt1\" align=\"center\" colspan=\"2\"><input type=\"submit\" name=\"submit\" value=\"Register\">&nbsp;<input type=\"reset\" value=\"Reset\"></td>";
+    $out .= "<br><label>Confirm Password:</label>";
+    $out .= "<input type=\"password\" autocomplete=\"off\" class=\"form-control\" placeholder=\"Re-type your Password.\" size=\"12\" maxlength=\"16\" name=\"re_password\">";
+    $out .= "</tr>";
+    $out .= "<tr>";
+	$out .= "<tr>";
+    $out .= "<br><label>Pin:</label>";
+    $out .= "<input type=\"text\" autocomplete=\"off\" class=\"form-control\" placeholder=\"PIN must be only numbers. REMEMBER YOUR PIN!\" size=\"12\" pattern=\"[0-9]{6}\" maxlength=\"6\" name=\"pin\" value=\"" . $pin . "\">";
+    $out .= "</tr>";
+    $out .= "\t<br><td class=\"alt1\" align=\"center\" colspan=\"2\"><input type=\"submit\" name=\"submit\" class=\"btn btn-primary\" value=\"Register\">&nbsp;<input type=\"reset\" class=\"btn btn-primary\" value=\"Reset\"></td>";
     $out .= "</tr>";
     $out .= "</table>";
 }

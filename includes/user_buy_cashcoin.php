@@ -148,7 +148,7 @@ else
                     }
 
                     $out .= "<p style=\"text-align: center; font-weight: bold;\">Successfully exchanged: <u>" . $config["specialcs_costpoint"] . "</u> Vote points into <u>" . $config["specialcs_cashpoint"] . "</u> Cash Coin";
-                    gamecp_log(1, $userdata["username"], "" . "GAMECP - CONVERT POINTS - Char Serial: " . $char_serial . " | Exchanged: " . $config["specialcs_costpoint"] . " VP to " . $config["specialcs_cashpoint"] . " Cash Coin");
+                    gamecp_log(1, $userdata["username"], "" . "GAMECP - PURCHASE CASH COIN: " . $config["specialcs_costpoint"] . " VP to " . $config["specialcs_cashpoint"] . " Cash Coin");
                     return 1;
                 }
 
